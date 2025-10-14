@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 
 interface FeedbackFormProps {
-  onSubmit?: (data: { name: string; score: number }) => void;
+  onSubmit?: (data: { name: string; score: number; processExperience: string; integrationScore: number }) => void;
 }
 
 const supabaseUrl = "https://kxmfaghfbwykuxgalxfm.supabase.co";
@@ -17,6 +17,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
   const [name, setName] = useState("");
   const [score, setScore] = useState(5);
+  const [processExperience, setProcessExperience] = useState("");
+  const [integrationScore, setIntegrationScore] = useState(5);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
@@ -26,15 +28,24 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
       setError("Por favor, preencha seu nome.");
       return;
     }
+    if (!processExperience.trim()) {
+      setError("Por favor, descreva sua experiência com o processo seletivo.");
+      return;
+    }
     setError("");
     // Envia para o Supabase
-    const { error: supabaseError } = await supabase.from("search01").insert({ nome: name, nota: score });
+    const { error: supabaseError } = await supabase.from("search01").insert({ 
+      nome: name, 
+      nota: score,
+      experiencia_processo: processExperience,
+      nota_integracao: integrationScore
+    });
     if (supabaseError) {
       setError("Erro ao enviar resposta. Tente novamente.");
       return;
     }
     setSubmitted(true);
-    onSubmit?.({ name, score });
+    onSubmit?.({ name, score, processExperience, integrationScore });
   }
 
   return (
@@ -66,6 +77,44 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
           <span className="text-red-500 text-sm font-medium animate-fade-in">{error}</span>
         )}
       </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="processExperience" className="mb-1 block text-base font-semibold text-neutral-800">
+          Como você descreveria sua experiência no processo seletivo da R3 Suprimentos? <span className="text-red-500">*</span>
+        </Label>
+        <textarea
+          id="processExperience"
+          placeholder="Descreva brevemente como foi sua participação no processo seletivo..."
+          value={processExperience}
+          onChange={(e) => setProcessExperience(e.target.value)}
+          required
+          rows={3}
+          className={`w-full text-base px-4 py-2 rounded-lg border-2 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 transition resize-none ${error ? 'border-red-400' : 'border-sky-100'}`}
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="integrationScore" className="mb-1 block text-base font-semibold text-neutral-800">
+           Em uma escala de <span className='font-bold text-sky-500'>0</span> (ruim) a <span className='font-bold text-sky-500'>10</span> (excelente), como você avalia o processo de integração inicial na R3 Suprimentos (contratos, cultura organizacional, apresentação dos diferenciais, cronograma de atividades)?
+        </Label>
+        <div className="flex items-center gap-2 sm:gap-4 mt-2">
+          <span className="text-neutral-400 font-semibold">1</span>
+          <Slider
+            id="integrationScore"
+            min={1}
+            max={10}
+            step={1}
+            value={[integrationScore]}
+            onValueChange={([val]: number[]) => setIntegrationScore(val)}
+            className="flex-1 accent-sky-400 hover:cursor-pointer cursor-pointer"
+          />
+          <span className="text-neutral-400 font-semibold">10</span>
+        </div>
+        <div className="text-center mt-1 text-xl sm:text-2xl font-bold text-sky-500 drop-shadow-sm">
+          {integrationScore}
+        </div>
+      </div>
+
   <div className="space-y-1.5">
         <Label htmlFor="score" className="mb-1 block text-base font-semibold text-neutral-800">
           Em uma escala de <span className='font-bold text-sky-500'>0</span> (ruim) a <span className='font-bold text-sky-500'>10</span> (excelente), quanto o aprendizado de hoje pode contribuir para sua evolução profissional?
