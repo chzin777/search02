@@ -13,8 +13,29 @@ interface TrainingSection {
   facilitatorScore: number;
 }
 
+interface FormData {
+  nome: string;
+  nota: number;
+  quimicos_experiencia: string;
+  quimicos_nota: number;
+  papeis_experiencia: string;
+  papeis_nota: number;
+  dispenseres_experiencia: string;
+  dispenseres_nota: number;
+  ti_experiencia: string;
+  ti_nota: number;
+  financeiro_experiencia: string;
+  financeiro_nota: number;
+  marketing_experiencia: string;
+  marketing_nota: number;
+  compras_experiencia: string;
+  compras_nota: number;
+  marketing_place_experiencia: string;
+  marketing_place_nota: number;
+}
+
 interface FeedbackFormProps {
-  onSubmit?: (data: any) => void;
+  onSubmit?: (data: FormData) => void;
 }
 
 const supabaseUrl = "https://kxmfaghfbwykuxgalxfm.supabase.co";
